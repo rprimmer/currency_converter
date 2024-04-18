@@ -15,7 +15,7 @@ def fetch_rates():
 def convert_currency(amount, base_currency, target_currency, rates):
     if base_currency == target_currency:
         return None  # No need to convert if currencies are the same
-    
+
     # Handle direct USD conversions
     if base_currency == 'usd':
         rate = rates.get(target_currency)
@@ -23,7 +23,7 @@ def convert_currency(amount, base_currency, target_currency, rates):
     elif target_currency == 'usd':
         rate = rates.get(base_currency)
         return amount / rate['rate'] if rate else None
-    
+
     # Handle non-USD base to non-USD target conversions
     base_to_usd = rates.get(base_currency)
     usd_to_target = rates.get(target_currency)
@@ -32,18 +32,34 @@ def convert_currency(amount, base_currency, target_currency, rates):
     else:
         return None
 
+def show_currencies(rates):
+    print("Available currencies:")
+    for key in sorted(rates.keys()):
+        print(f"{key.upper()} - {rates[key]['name']}")
+
 def main():
     parser = argparse.ArgumentParser(description="Convert currencies to and from a base currency")
-    parser.add_argument('amount', type=float, help='Amount to convert')
-    parser.add_argument('currencies', nargs='+', help='List of currency codes to convert from the first currency')
+    parser.add_argument('amount', type=float, nargs='?', help='Amount to convert')  # Make amount optional
+    parser.add_argument('currencies', nargs='*', help='List of currency codes to convert from the first currency')  # Make currencies optional
+    parser.add_argument('-s', '--show', action='store_true', help='Show available currencies')
     args = parser.parse_args()
+
+    rates = fetch_rates()
+
+    if args.show:
+        show_currencies(rates)
+        return
+
+    if args.amount is None:
+        args.amount = float(input("Enter the amount to convert: "))
+    if not args.currencies:
+        args.currencies = input("Enter the base currency and target currencies, separated by spaces: ").split()
 
     if len(args.currencies) < 2:
         print("Please provide at least two currencies for comparison.")
         return
 
     base_currency = args.currencies[0].lower()
-    rates = fetch_rates()
 
     for currency in args.currencies[1:]:
         currency = currency.lower()
