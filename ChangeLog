@@ -2,6 +2,8 @@ This file has been automatically generated using the following command:
 
 	git log --pretty=format:'%h %d %ai - %s'
 
-0d1fb44  (HEAD -> main) Thu Apr 18 16:03:07 2024 -0400 - updated changelog
+47cbb77  (HEAD -> main, added-yaml, Generalize-fetchrates) Wed Apr 24 12:51:40 2024 -0400 - Generalized fetch_rates(url)
+c2580bc  Wed Apr 24 12:45:40 2024 -0400 - Update before feature add
+0d1fb44  Thu Apr 18 16:03:07 2024 -0400 - updated changelog
 b3f03c4  (origin/main) Thu Apr 18 16:00:56 2024 -0400 - v2
 3b12c60  Wed Apr 17 18:18:37 2024 -0400 - v1

@@ -2,14 +2,18 @@
 
 import argparse
 import requests
+import yaml
+import os
 
-def fetch_rates(url):  # Add URL as a parameter
+def fetch_rates(url):
     try:
+        if not url:  # Check if the URL is provided and valid
+            raise ValueError("URL for fetching rates is not provided.")
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
         return data
-    except requests.RequestException as e:
+    except (requests.RequestException, ValueError) as e:
         raise SystemExit(f"Error fetching currency data: {e}")
 
 def convert_currency(amount, base_currency, target_currency, rates):
@@ -42,30 +46,49 @@ def main():
     parser.add_argument('-s', '--show', action='store_true', help='Show available currency codes')
     args = parser.parse_args()
 
-    rates = fetch_rates("http://www.floatrates.com/daily/usd.json")  # Pass the URL here
+    default_url = "http://www.floatrates.com/daily/usd.json"
+    config_path = "config.yaml"
+    config = {}
+
+    if os.path.exists(config_path):
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file) or {}
+    
+    url = config.get('url') or default_url
+    rates = fetch_rates(url)
 
     if args.show:
         show_currencies(rates)
         return
 
-    if args.amount is None:
-        args.amount = float(input("Enter the amount to convert: "))
-    if not args.currencies:
-        args.currencies = input("Enter the base currency and target currencies, separated by spaces: ").split()
+    amount = args.amount if args.amount is not None else config.get('amount')
+    if amount is None:
+        amount = float(input("Enter the amount to convert: "))
 
-    if len(args.currencies) < 2:
-        print("Please provide at least two currencies for comparison.")
+    if args.currencies:
+        base_currency = args.currencies[0].lower()
+        converting_currencies = args.currencies[1:]
+    else:
+        base_currency = (config.get('base_currency') or input("Enter the base currency: ")).strip().lower()
+        converting_currencies = config.get('converting_currencies', [])
+
+    if not base_currency:
+        base_currency = input("Enter the base currency: ").lower()
+
+    if not converting_currencies:
+        converting_currencies = input("Enter target currencies, separated by spaces: ").split()
+
+    if len(converting_currencies) < 1:
+        print("Please provide at least one target currency for comparison.")
         return
 
-    base_currency = args.currencies[0].lower()
-
-    for currency in args.currencies[1:]:
+    for currency in converting_currencies:
         currency = currency.lower()
-        result = convert_currency(args.amount, base_currency, currency, rates)
+        result = convert_currency(amount, base_currency, currency, rates)
         if result is not None:
-            print(f"{args.amount} {base_currency.upper()} is equivalent to {result:.4f} {currency.upper()}.")
+            print(f"{amount} {base_currency.upper()} is equivalent to {result:.4f} {currency.upper()}.")
         else:
-            print(f"{base_currency.upper()} to {currency.upper()} exchange rate not found.")
+            print(f"Exchange rate not found for {base_currency.upper()} to {currency.upper()}.")
 
 if __name__ == "__main__":
     main()
