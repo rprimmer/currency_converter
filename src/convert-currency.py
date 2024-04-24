@@ -3,9 +3,9 @@
 import argparse
 import requests
 
-def fetch_rates():
+def fetch_rates(url):  # Add URL as a parameter
     try:
-        response = requests.get("http://www.floatrates.com/daily/usd.json")
+        response = requests.get(url)
         response.raise_for_status()
         data = response.json()
         return data
@@ -16,7 +16,6 @@ def convert_currency(amount, base_currency, target_currency, rates):
     if base_currency == target_currency:
         return None  # No need to convert if currencies are the same
 
-    # Handle direct USD conversions
     if base_currency == 'usd':
         rate = rates.get(target_currency)
         return amount * rate['rate'] if rate else None
@@ -24,7 +23,6 @@ def convert_currency(amount, base_currency, target_currency, rates):
         rate = rates.get(base_currency)
         return amount / rate['rate'] if rate else None
 
-    # Handle non-USD base to non-USD target conversions
     base_to_usd = rates.get(base_currency)
     usd_to_target = rates.get(target_currency)
     if base_to_usd and usd_to_target:
@@ -39,12 +37,12 @@ def show_currencies(rates):
 
 def main():
     parser = argparse.ArgumentParser(description="Convert currencies to and from a base currency")
-    parser.add_argument('amount', type=float, nargs='?', help='Amount to convert')  # Make amount optional
-    parser.add_argument('currencies', nargs='*', help='List of currency codes to convert from the first currency')  # Make currencies optional
+    parser.add_argument('amount', type=float, nargs='?', help='Amount to convert')
+    parser.add_argument('currencies', nargs='*', help='List of currency codes to convert from the first currency')
     parser.add_argument('-s', '--show', action='store_true', help='Show available currency codes')
     args = parser.parse_args()
 
-    rates = fetch_rates()
+    rates = fetch_rates("http://www.floatrates.com/daily/usd.json")  # Pass the URL here
 
     if args.show:
         show_currencies(rates)
