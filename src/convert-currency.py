@@ -41,7 +41,7 @@ def main():
     parser = argparse.ArgumentParser(description="Convert currencies to and from a base currency")
     parser.add_argument('amount', type=float, nargs='?', help='Amount to convert')  # Make amount optional
     parser.add_argument('currencies', nargs='*', help='List of currency codes to convert from the first currency')  # Make currencies optional
-    parser.add_argument('-s', '--show', action='store_true', help='Show available currencies')
+    parser.add_argument('-s', '--show', action='store_true', help='Show available currency codes')
     args = parser.parse_args()
 
     rates = fetch_rates()
