@@ -1,15 +1,16 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='currency-converter',  
-    version='1.0.0',  
+    name='currency-converter',
+    version='2.1.0',
     description='A tool for converting currencies',
     author='Robert Primmer',
     author_email='rob.primmer@icloud.com',
-    packages=find_packages(where='src'), 
-    install_requires=[  
-        'argparse'
+    package_dir={'': 'src'},  
+    packages=find_packages(where='src'),  
+    install_requires=[
         'requests',  
+        'pyyaml'     
     ],
     entry_points={
         'console_scripts': [
