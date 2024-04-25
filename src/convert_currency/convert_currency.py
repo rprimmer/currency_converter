@@ -46,6 +46,10 @@ def main():
     parser.add_argument('-s', '--show', action='store_true', help='Show available currency codes')
     args = parser.parse_args()
 
+    if args.show:
+        show_currencies(rates)
+        return
+
     default_url = "http://www.floatrates.com/daily/usd.json"
     config_path = "config.yaml"
     config = {}
@@ -56,10 +60,6 @@ def main():
     
     url = config.get('url') or default_url
     rates = fetch_rates(url)
-
-    if args.show:
-        show_currencies(rates)
-        return
 
     amount = args.amount if args.amount is not None else config.get('amount')
     if amount is None:
