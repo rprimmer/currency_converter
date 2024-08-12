@@ -7,8 +7,8 @@ import os
 
 def fetch_rates(url):
     try:
-        if not url:  # Check if the URL is provided and valid
-            raise ValueError("URL for fetching rates is not provided.")
+        if not url:  
+            raise ValueError("URL for fetching rates was not provided.")
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
@@ -18,7 +18,7 @@ def fetch_rates(url):
 
 def convert_currency(amount, base_currency, target_currency, rates):
     if base_currency == target_currency:
-        return None  # No need to convert if currencies are the same
+        return None 
 
     if base_currency == 'usd':
         rate = rates.get(target_currency)

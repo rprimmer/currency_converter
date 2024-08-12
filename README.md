@@ -54,9 +54,9 @@ The one exception is the URL. If a valid URL is not specified the script default
 
 ### Examples
 
-* `python convert_currency.py -s`- Shows available currency codes.
-* `python convert_currency.py` - Runs interactively or uses values in `config.yaml`.
-* `python convert_currency.py 100 usd eur aud cad` - Converts 100 USD to EUR, AUD and CAD.
+* `convert_currency.py -s`- Shows available currency codes.
+* `convert_currency.py` - Runs interactively or uses values in `config.yaml`.
+* `convert_currency.py 100 usd eur aud cad` - Converts 100 USD to EUR, AUD and CAD.
 
 ## Requirements
 
