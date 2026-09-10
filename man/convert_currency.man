@@ -1,66 +1,37 @@
-.\"   Manpage for the currency_converter command.
-.\"
-.DD @MAN_DATE@
-.DT "currency_converter" "1" "Convert currencies at current exchange rates"
-.PP
-.H NAME
-.NM currency_converter 
-does something interesting.
-.PP
+.TH CONVERT-CURRENCY 1
+.SH NAME
+convert-currency \- convert amounts using USD-based exchange rates
 .SH SYNOPSIS
-.NM 
-[OPTIONS] <arguments>
-.H DESCRIPTION
-The
-.NM
-command does something...
-.BL -tag indent
-.IT -
-First daHed bullet.
-.IT -
-Second 
-.EM emphasized
-bullet.
-.EL
-.PP
-.H OPTIONS
-.BL -tag -width indent
-.IT Fl h, -help
-Display help.
-.IT Fl x, -some-switch
-Switch detail.
-.IT Fl v, -verbose
-Print verbose output.
-.IT Fl -version
-Print the version of
-.NM
-and exits.
-.EL 
-.H ARGUMENTS
-.BL -tag -width indent
-.IT \\fBarg1\\fR  : argument detail
-.IT \\fBarg2\\fR : argument detail
-.EL 
-.H RESTRICTIONS
-.BL -tag -width indent
-.IT restriction : restriction detail
-.IT restriction : restriction detail
-.H EXAMPLES
-.BL -tag -width indent
-.NM
-: example detail
-.PP
-.NM
-: example detail
-.EL 
-.H FILES
-.BL -tag -width indent
-Executable: /usr/local/bin
-.PP
-Manpage: /usr/local/Hare/man/man1
-.H COMPATIBILITY
-.NM
-can be built on macOS (both ARM and Intel) and linux.
-.H BUGS
-See https://github.com/rprimmer/foo/issues
-for open issues or to create a new one.
+.B convert-currency
+.RB [ -h ]
+.RB [ -s ]
+.RI [ amount ]
+.RI [ source " target ..."]
+.SH DESCRIPTION
+Convert an amount from the first currency to each target currency.
+Currency codes are case-insensitive. Results are displayed to four decimal places.
+Command-line values override configuration; missing values are prompted for.
+.SH OPTIONS
+.TP
+.B -h, --help
+Display command-line help.
+.TP
+.B -s, --show
+Fetch and list available currencies without prompting for conversion inputs.
+.SH FILES
+.TP
+.B config.yaml
+Optional YAML defaults in the current working directory. Supported keys are
+url, amount, base_currency, and converting_currencies (a list).
+The default URL is https://www.floatrates.com/daily/usd.json.
+Custom feeds must use the same USD-based rate format.
+.SH EXAMPLES
+.TP
+.B convert-currency 100 usd eur gbp
+Convert 100 US dollars to euros and pounds.
+.TP
+.B python -m convert_currency --show
+List available currencies using the installed Python package.
+.SH EXIT STATUS
+0 on success, 1 for input, configuration, network, rate data, or unknown-currency
+errors, and 2 for command-line syntax errors.

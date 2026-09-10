@@ -1,102 +1,117 @@
 # Currency Converter
 
-Convert currencies to/from a base currency.
+A small Python command-line tool for converting between currencies using
+[FloatRates](https://www.floatrates.com/) USD-based exchange rates.
+
+## Installation
+
+From the repository directory, create a virtual environment and install the package:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install .
+```
+
+Dependencies are `requests` and `PyYAML`. Development checks use Python's built-in
+`unittest` framework; no additional test dependencies are needed.
 
 ## Usage
 
-usage: `python convert_currency.py [OPTIONS] [amount] [currencies ...]`
+```sh
+convert-currency 100 usd eur aud cad
+convert-currency --show
+convert-currency
+```
 
-positional arguments:
+The first currency is the source; the remaining currencies are targets. Codes
+are case-insensitive. Results are displayed to four decimal places.
 
-* `amount`      Amount to convert
-* `currencies`  List of currency codes to convert from the first currency
+The same interface is available as `python -m convert_currency` after installation.
+To run directly from a checkout after installing `requirements.txt`, use:
 
-OPTIONS:
+```sh
+PYTHONPATH=src python3 -m convert_currency 100 usd eur gbp
+```
 
-* `-h`, `--help`  show help message and exit
-* `-s`, `--show`  Show available currency codes
+Options:
 
-## Yaml Config
+- `-h`, `--help`: display help.
+- `-s`, `--show`: fetch and list available currencies, including USD, without prompts.
 
-Parameters can be entered on the command line as positional arguments or the user will be queried for these values.
+## Configuration and interactive mode
 
-As a convenience for repeated batch operation all parameters can be specified in the yaml file `config.yaml`.
-
-### Yaml fields
-
-* `url` : the website used to fetch currency rates.
-* `amount` : currency amount to convert
-* `base_currency` : currency to convert from
-* `converting_currencies` : currencies to convert to
-
-For example, to convert 100 US Dollars to Euros, Pounds, Russian Rubles, Ukrainian Hryvnia and Polish Zloty you would use these entries in the `config.yaml`.
+An optional `config.yaml` is read from the **current working directory**. The
+included sample supplies defaults, so running from the repository uses those
+values instead of prompting.
 
 ```yaml
-url: "http://www.floatrates.com/daily/usd.json"
+url: "https://www.floatrates.com/daily/usd.json"
 amount: 100
 base_currency: "USD"
-converting_currencies: ["EUR", "GBP", "RUB", "UAH", "PLN"]
+converting_currencies: ["EUR", "GBP", "CAD"]
 ```
 
-## Modes
+Command-line amounts override the configured amount. A command-line currency
+list replaces both the configured source and targets. Missing amounts, sources,
+or target lists are requested interactively. For example, `convert-currency 100 usd`
+prompts for targets. Interactive prompts include examples and explain source and
+target currencies. Type `?` or `help` at any prompt to list available currencies,
+or `q` / `quit` to cancel. Invalid prompted amounts and currency codes can be
+corrected without restarting. Target codes may be separated by spaces or commas.
+Ctrl-C also cancels cleanly. Zero is a valid amount. Negative amounts are also accepted.
 
-Can be run in three modes:
+A missing or empty configuration file is allowed. Without a configured URL, the
+program uses `https://www.floatrates.com/daily/usd.json`. A custom URL must return
+the same USD-based format, with currency codes mapped to records containing a
+positive numeric `rate` and a `name`. If present, `baseCode` must be `USD`.
 
-* batch with a yaml file,
-* batch with command line arguments, or
-* interactively.
+## Conversion and errors
 
-It is not essential that a `config.yaml` file exist. In the absence of this file, or empty values within the file for some or all of the keys, the script will query the user for these values.
+Each rate is the number of currency units per USD. Conversion uses:
 
-The one exception is the URL. If a valid URL is not specified the script defaults to:
-
-* `"http://www.floatrates.com/daily/usd.json"`
-
-### Examples
-
-* `convert_currency.py -s`- Shows available currency codes.
-* `convert_currency.py` - Runs interactively or uses values in `config.yaml`.
-* `convert_currency.py 100 usd eur aud cad` - Converts 100 USD to EUR, AUD and CAD.
-
-## Requirements
-
-This project was tested with the following configurations:
-
-* python 3.12.3
-* requests==2.31.0
-* pyyaml==6.0.1
-* macOS 14.4.1 23E224 x86_64 & macOS 14.4.1 23E224 arm64
-
-Ensure you have Python installed along with the necessary packages. To install the required packages, run:
-
-```bash
-    pip install -r requirements.txt
+```text
+result = amount × (target rate / source rate)
 ```
 
-## Executable
+USD has a rate of one. Converting a supported currency to itself returns the
+original amount. Unknown currencies are reported, and other requested targets
+are still processed.
 
-To convert the python script to an executable use PyInstaller. An executable removes the need for the user to have a functioning Python environment on the executing machine.
+Requests use a ten-second timeout. Invalid configuration, non-finite amounts,
+malformed rate data, and network failures produce an error message and exit
+status 1. Unknown currencies also produce status 1; successful runs return 0.
+Command-line syntax errors return status 2.
 
-This script was tested with:
+Calculations use floating-point numbers and round only for display. The tool
+provides estimates from the downloaded rates; it does not account for fees.
 
-* pyinstaller==6.6.0
-
-To determine if it's already loaded:
+## Development
 
 ```sh
-    pip show pyinstaller
+python3 -m pip install -r requirements.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v
 ```
 
-If not present:
+Tests use fixed rate data and mocked network calls, covering conversions,
+configuration, interactive input, listing currencies, and error handling.
+
+The implementation is in [convert_currency.py](src/convert_currency/convert_currency.py).
+Input parsing, configuration loading, rate fetching, and conversion are separate
+functions so each responsibility can be understood and tested independently.
+
+## Standalone executable
+
+To build an executable with [PyInstaller](https://pyinstaller.org/):
 
 ```sh
-    pip install pyinstaller
+python -m pip install pyinstaller
+python -m PyInstaller --clean --noconfirm convert-currency.spec
 ```
 
-To generate an executable:
+The executable is written to `dist/convert-currency/convert-currency` on macOS
+and Linux. It reads `config.yaml` from the directory where it is run.
 
-```sh
-    python -m PyInstaller convert_currency.spec
-```
-
-Resulting executable is: `dist/convert_currency/convert_currency`
+The command and standalone executable are named `convert-currency`. The internal
+Python package uses `convert_currency`, as required for Python imports. Keep the
+adjacent `_internal` directory with the standalone executable when moving it.

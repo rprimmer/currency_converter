@@ -1,4 +1,4 @@
-url: "http://www.floatrates.com/daily/usd.json"
+url: "https://www.floatrates.com/daily/usd.json"
 amount: 100
 base_currency: "USD"
 converting_currencies: ["EUR", "GBP", "CAD", "RUB", "UAH", "PLN"]

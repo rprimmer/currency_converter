@@ -6,15 +6,15 @@ setup(
     description='A tool for converting currencies',
     author='Robert Primmer',
     author_email='rob.primmer@icloud.com',
-    package_dir={'': 'src'},  
-    packages=find_packages(where='src'),  
+    package_dir={'': 'src'},
+    packages=find_packages(where='src'),
     install_requires=[
-        'requests',  
-        'pyyaml'     
+        'requests',
+        'pyyaml'
     ],
     entry_points={
         'console_scripts': [
-            'convert-currency=currency_converter.convert_currency:main',  
+            'convert-currency=convert_currency.convert_currency:main',
         ]
     },
 )

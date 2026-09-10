@@ -61,3 +61,11 @@ build
 *.spec
 
 # Project specific
+
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# Keep the reproducible standalone build configuration.
+!convert-currency.spec
